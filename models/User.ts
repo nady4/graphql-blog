@@ -10,7 +10,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      match: [/.+@.+\..+/, "Please enter a valid e-mail address"],
+      match: [/.+@.+\..+/, "❌ Please enter a valid e-mail address ✉️"],
     },
     password: {
       type: String,
@@ -28,4 +28,4 @@ const userSchema = new Schema(
   }
 );
 
-export const userModel = model("User", userSchema);
+export const User = model("User", userSchema);

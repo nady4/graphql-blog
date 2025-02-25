@@ -1,7 +1,7 @@
 import express from "express";
+import { connectDB } from "./db/index.ts";
 import { graphqlHTTP } from "express-graphql";
 import { schema } from "./graphql/schema.ts";
-import { connectDB } from "./db/index.ts";
 
 await connectDB();
 const app = express();
@@ -15,9 +15,9 @@ app.listen(3000, () => {
 });
 
 app.use(
-  "/graphql", // The URL path where GraphQL is accessible.
+  "/graphql",
   graphqlHTTP({
-    schema, // Providing the GraphQL schema.
-    graphiql: true, // Enable GraphiQL for a user-friendly interface to test queries.
+    schema,
+    graphiql: true,
   })
 );
