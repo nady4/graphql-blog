@@ -6,6 +6,7 @@ export const authenticate = (req, res, next) => {
     if (err) {
       res.status(401).json({ message: "❌ Unauthorized" });
     }
+    req.user = decoded.user;
   });
   next();
 };
