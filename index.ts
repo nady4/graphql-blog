@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.all("/graphql", authenticate, (req: any, res, next) => {
+app.all("/graphql", (req: any, res, next) => {
   const handler = createHandler({
     schema,
     context: { user: req.user },

@@ -9,7 +9,7 @@ export const user = {
   args: {
     _id: { type: GraphQLID },
   },
-  resolve: (_: any, args: any) => User.findById(args._id),
+  resolve: (_: any, { _id }) => User.findById(_id),
 };
 
 export const users = {
@@ -24,7 +24,7 @@ export const post = {
   args: {
     _id: { type: GraphQLID },
   },
-  resolve: (_: any, args: any) => Post.findById(args._id),
+  resolve: (_: any, { _id }) => Post.findById(_id),
 };
 
 export const posts = {

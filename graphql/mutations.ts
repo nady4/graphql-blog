@@ -14,15 +14,20 @@ export const register = {
     password: { type: GraphQLString },
     displayName: { type: GraphQLString },
   },
-  resolve: async (_: any, args: any) => {
-    const user = new User(args);
+  resolve: async (_: any, { username, email, password, displayName }) => {
+    const user = new User({
+      username,
+      email,
+      password,
+      displayName,
+    });
 
-    if (await User.findOne({ email: args.email })) {
+    if (await User.findOne({ email })) {
       throw new Error("❓ User already exists");
     }
 
     const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(args.password, salt);
+    user.password = await bcrypt.hash(password, salt);
 
     await user.save();
     const token = createJWT({
@@ -41,13 +46,13 @@ export const login = {
     email: { type: GraphQLString },
     password: { type: GraphQLString },
   },
-  resolve: async (_: any, args: any) => {
-    const user = await User.findOne({ email: args.email }).select("+password");
+  resolve: async (_: any, { email, password }) => {
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       throw new Error("❓ User not found");
     }
-    if (!(await bcrypt.compare(args.password, user.password))) {
+    if (!(await bcrypt.compare(password, user.password))) {
       throw new Error("❌ Invalid password");
     }
 
@@ -67,14 +72,10 @@ export const createPost = {
     title: { type: GraphQLString },
     content: { type: GraphQLString },
   },
-  resolve: async (_: any, args: any, { user }) => {
-    if (!user) {
-      throw new Error("❓ Unauthorized");
-    }
-
+  resolve: async (_: any, { title, content }, { user }) => {
     const post = new Post({
-      title: args.title,
-      content: args.content,
+      title,
+      content,
       author: user._id,
     });
 
@@ -90,8 +91,8 @@ export const updatePost = {
     title: { type: GraphQLString },
     content: { type: GraphQLString },
   },
-  resolve: async (_: any, args: any, { user }) => {
-    const post = await Post.findById(args._id);
+  resolve: async (_: any, { _id, title, content }, { user }) => {
+    const post = await Post.findById(_id);
 
     if (!post) {
       throw new Error("❓ Post not found");
@@ -101,8 +102,8 @@ export const updatePost = {
       throw new Error("❓ Unauthorized");
     }
 
-    post.title = args.title;
-    post.content = args.content;
+    post.title = title;
+    post.content = content;
     return post.save();
   },
 };
@@ -113,8 +114,8 @@ export const deletePost = {
   args: {
     _id: { type: GraphQLID },
   },
-  resolve: async (_: any, args: any, { user }) => {
-    const post = await Post.findById(args._id);
+  resolve: async (_: any, { _id }, { user }) => {
+    const post = await Post.findById(_id);
 
     if (!post) {
       throw new Error("❓ Post not found");
