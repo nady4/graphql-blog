@@ -1,7 +1,9 @@
 import { GraphQLString, GraphQLID } from "graphql";
 import { GraphQLPost } from "./types.ts";
+import { GraphQLComment } from "./types.ts";
 import { User } from "../models/User.ts";
 import { Post } from "../models/Post.ts";
+import { Comment } from "../models/Comment.ts";
 import { createJWT } from "../util/auth.ts";
 import bcrypt from "bcrypt";
 
@@ -126,5 +128,67 @@ export const deletePost = {
     }
 
     return post.deleteOne();
+  },
+};
+
+export const createComment = {
+  type: GraphQLComment,
+  description: "Create Comment",
+  args: {
+    content: { type: GraphQLString },
+    post: { type: GraphQLID },
+  },
+  resolve: async (_: any, { content, post }, { user }) => {
+    const comment = new Comment({
+      content,
+      author: user._id,
+      post,
+    });
+
+    return await comment.save();
+  },
+};
+
+export const updateComment = {
+  type: GraphQLComment,
+  description: "Update Comment",
+  args: {
+    _id: { type: GraphQLID },
+    content: { type: GraphQLString },
+  },
+  resolve: async (_: any, { _id, content }, { user }) => {
+    const comment = await Comment.findById(_id);
+
+    if (!comment) {
+      throw new Error("❓ Comment not found");
+    }
+
+    if (comment.author.toString() !== user._id) {
+      throw new Error("❓ Unauthorized");
+    }
+
+    comment.content = content;
+    return comment.save();
+  },
+};
+
+export const deleteComment = {
+  type: GraphQLComment,
+  description: "Delete Comment",
+  args: {
+    _id: { type: GraphQLID },
+  },
+  resolve: async (_: any, { _id }, { user }) => {
+    const comment = await Comment.findById(_id);
+
+    if (!comment) {
+      throw new Error("❓ Comment not found");
+    }
+
+    if (comment.author.toString() !== user._id) {
+      throw new Error("❓ Unauthorized");
+    }
+
+    return comment.deleteOne();
   },
 };

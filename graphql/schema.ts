@@ -1,11 +1,14 @@
 import { GraphQLSchema, GraphQLObjectType } from "graphql";
-import { user, users, post, posts } from "./queries.ts";
+import { user, users, post, posts, comment, comments } from "./queries.ts";
 import {
   login,
   register,
   createPost,
   updatePost,
   deletePost,
+  createComment,
+  updateComment,
+  deleteComment,
 } from "./mutations.ts";
 
 const RootType = new GraphQLObjectType({
@@ -16,6 +19,8 @@ const RootType = new GraphQLObjectType({
     users,
     post,
     posts,
+    comment,
+    comments,
   },
 });
 
@@ -28,6 +33,9 @@ const MutationType = new GraphQLObjectType({
     createPost,
     updatePost,
     deletePost,
+    createComment,
+    updateComment,
+    deleteComment,
   },
 });
 
