@@ -12,7 +12,14 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.all("/graphql", createHandler({ schema }));
+app.all("/graphql", authenticate, (req: any, res, next) => {
+  const handler = createHandler({
+    schema,
+    context: { user: req.user },
+  });
+
+  handler(req, res, next);
+});
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`✅ Listening on port ${process.env.PORT || 3000}!`);

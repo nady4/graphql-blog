@@ -66,10 +66,18 @@ export const createPost = {
   args: {
     title: { type: GraphQLString },
     content: { type: GraphQLString },
-    author: { type: GraphQLID },
   },
-  resolve: async (_: any, args: any) => {
-    const post = new Post(args);
+  resolve: async (_: any, args: any, { user }) => {
+    if (!user) {
+      throw new Error("❓ Unauthorized");
+    }
+
+    const post = new Post({
+      title: args.title,
+      content: args.content,
+      author: user._id,
+    });
+
     return await post.save();
   },
 };
@@ -82,11 +90,15 @@ export const updatePost = {
     title: { type: GraphQLString },
     content: { type: GraphQLString },
   },
-  resolve: async (_: any, args: any) => {
+  resolve: async (_: any, args: any, { user }) => {
     const post = await Post.findById(args._id);
 
     if (!post) {
       throw new Error("❓ Post not found");
+    }
+
+    if (post.author.toString() !== user._id) {
+      throw new Error("❓ Unauthorized");
     }
 
     post.title = args.title;
@@ -101,11 +113,15 @@ export const deletePost = {
   args: {
     _id: { type: GraphQLID },
   },
-  resolve: async (_: any, args: any) => {
+  resolve: async (_: any, args: any, { user }) => {
     const post = await Post.findById(args._id);
 
     if (!post) {
       throw new Error("❓ Post not found");
+    }
+
+    if (post.author.toString() !== user._id) {
+      throw new Error("❓ Unauthorized");
     }
 
     return post.deleteOne();
